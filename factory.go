@@ -35,16 +35,15 @@ type factoryImpl struct {
 
 func (f *factoryImpl) Register(prototype interface{}) {
 	var creator Creator = func(args ...interface{}) interface{} {
-		p := reflect.New(reflect.TypeOf(prototype))
-		result := p.Interface()
-		p = p.Elem()
-		for p.Kind() == reflect.Ptr {
-			p.Set(reflect.New(p.Type().Elem()))
-			p = p.Elem()
+		v := reflect.New(reflect.TypeOf(prototype)).Elem()
+		result := v
+		for v.Kind() == reflect.Ptr {
+			v.Set(reflect.New(v.Type().Elem()))
+			v = v.Elem()
 		}
-		return result
+		return result.Interface()
 	}
-	f.RegisterCreator(NameOfObject(prototype), creator, nil)
+	f.RegisterCreator(NameOfObject(prototype), creator)
 }
 
 func (f *factoryImpl) RegisterInterface(ptrToInterface interface{}, prototype interface{}) {
@@ -55,16 +54,15 @@ func (f *factoryImpl) RegisterInterface(ptrToInterface interface{}, prototype in
 	}
 
 	var creator Creator = func(args ...interface{}) interface{} {
-		p := reflect.New(t)
-		result := p.Interface()
-		p = p.Elem()
-		for p.Kind() == reflect.Ptr {
-			p.Set(reflect.New(p.Type().Elem()))
-			p = p.Elem()
+		v := reflect.New(reflect.TypeOf(prototype)).Elem()
+		result := v
+		for v.Kind() == reflect.Ptr {
+			v.Set(reflect.New(v.Type().Elem()))
+			v = v.Elem()
 		}
-		return result
+		return result.Interface()
 	}
-	f.RegisterCreator(NameOfInterface(ptrToInterface), creator, nil)
+	f.RegisterCreator(NameOfInterface(ptrToInterface), creator)
 }
 
 func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs ...interface{}) {
@@ -83,6 +81,7 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 	}
 
 	if len(defaultArgs) > 0 {
+		fmt.Println(defaultArgs...)
 		t := reflect.TypeOf(creator)
 		if len(defaultArgs) != t.NumIn() {
 			panic("defaultArgs doesn't match creator's arguments")

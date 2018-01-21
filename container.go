@@ -4,6 +4,7 @@ import (
 	"github.com/natande/gox"
 	"reflect"
 	"sync"
+	"fmt"
 )
 
 type Container interface {
@@ -22,10 +23,13 @@ type Container interface {
 	Build()
 }
 
+var RootContainer = NewContainer()
+
 func NewContainer() Container {
 	return &containerImpl{
-		nameToObject: &sync.Map{},
-		factory:      NewFactory(),
+		nameToObject:   &sync.Map{},
+		factory:        NewFactory(),
+		singletonNames: gox.NewConcurrentSet(10),
 	}
 }
 
@@ -59,18 +63,22 @@ func (c *containerImpl) GetObject(name string) interface{} {
 
 	if c.singletonNames.Contains(name) {
 		c.nameToObject.Store(name, obj)
+	} else {
+		c.Inject(obj)
 	}
 	return obj
 }
 
 func (c *containerImpl) RegisterSingleton(prototype interface{}) {
 	c.factory.Register(prototype)
+	gox.LogInfo(prototype, NameOfObject(prototype))
 	c.singletonNames.Add(NameOfObject(prototype))
 }
 
 func (c *containerImpl) RegisterSingletonInterface(ptrToInterface interface{}, prototype interface{}) {
 	c.factory.RegisterInterface(ptrToInterface, prototype)
-	c.singletonNames.Add(NameOfObject(prototype))
+	gox.LogInfo(prototype, NameOfInterface(ptrToInterface))
+	c.singletonNames.Add(NameOfInterface(ptrToInterface))
 }
 
 func (c *containerImpl) RegisterTransient(prototype interface{}) {
@@ -111,6 +119,8 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 			f.Set(reflect.ValueOf(obj))
 		}
 	}
+
+	gox.LogInfo("inject object for type: ", NameOfType(t))
 }
 
 func (c *containerImpl) Build() {
@@ -121,6 +131,17 @@ func (c *containerImpl) Build() {
 			gox.LogInfo("Initialized singleton object for", name)
 		} else {
 			gox.LogError("Failed to initialize singleton object for", name)
+		}
+	}
+
+	initType := reflect.TypeOf((*Initializer)(nil)).Elem()
+	for _, name := range names {
+		obj := c.GetObject(name.(string))
+		if obj != nil {
+			c.Inject(obj)
+			if reflect.TypeOf(obj).Implements(initType) {
+				obj.(Initializer).Init()
+			}
 		}
 	}
 }
