@@ -10,8 +10,8 @@ import (
 type Creator func(args ...interface{}) interface{}
 
 type Factory interface {
-	RegisterObject(obj interface{})
-	RegisterInterface(ptrToInterface interface{}, obj interface{})
+	Register(prototype interface{})
+	RegisterInterface(ptrToInterface interface{}, prototype interface{})
 	RegisterCreator(name string, creator Creator, defaultArgs ...interface{})
 	CreateObject(name string, args ...interface{}) (interface{}, error)
 }
@@ -33,9 +33,9 @@ type factoryImpl struct {
 	nameToCreator *sync.Map
 }
 
-func (f *factoryImpl) RegisterObject(obj interface{}) {
+func (f *factoryImpl) Register(prototype interface{}) {
 	var creator Creator = func(args ...interface{}) interface{} {
-		p := reflect.New(reflect.TypeOf(obj))
+		p := reflect.New(reflect.TypeOf(prototype))
 		result := p.Interface()
 		p = p.Elem()
 		for p.Kind() == reflect.Ptr {
@@ -44,12 +44,12 @@ func (f *factoryImpl) RegisterObject(obj interface{}) {
 		}
 		return result
 	}
-	f.RegisterCreator(NameOfObject(obj), creator, nil)
+	f.RegisterCreator(NameOfObject(prototype), creator, nil)
 }
 
-func (f *factoryImpl) RegisterInterface(ptrToInterface interface{}, obj interface{}) {
+func (f *factoryImpl) RegisterInterface(ptrToInterface interface{}, prototype interface{}) {
 	interfaceType := InterfaceOf(ptrToInterface)
-	t := reflect.TypeOf(obj)
+	t := reflect.TypeOf(prototype)
 	if !t.Implements(interfaceType) {
 		panic(t.Name() + " doesn't implement interface " + interfaceType.Name())
 	}

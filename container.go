@@ -10,11 +10,11 @@ type Container interface {
 	SetObject(name string, obj interface{})
 	GetObject(name string) interface{}
 
-	RegisterSingletonObject(obj interface{})
-	RegisterSingletonInterface(ptrToInterface interface{}, obj interface{})
+	RegisterSingleton(prototype interface{})
+	RegisterSingletonInterface(ptrToInterface interface{}, prototype interface{})
 
-	RegisterTransientObject(obj interface{})
-	RegisterTransientInterface(ptrToInterface interface{}, obj interface{})
+	RegisterTransient(prototype interface{})
+	RegisterTransientInterface(ptrToInterface interface{}, prototype interface{})
 
 	Invoke(f interface{}) ([]reflect.Value, error)
 	Inject(obj interface{})
@@ -63,32 +63,64 @@ func (c *containerImpl) GetObject(name string) interface{} {
 	return obj
 }
 
-func (c *containerImpl) RegisterSingletonObject(obj interface{}) {
-	c.factory.RegisterObject(obj)
-	c.singletonNames.Add(NameOfObject(obj))
+func (c *containerImpl) RegisterSingleton(prototype interface{}) {
+	c.factory.Register(prototype)
+	c.singletonNames.Add(NameOfObject(prototype))
 }
 
-func (c *containerImpl) RegisterSingletonInterface(ptrToInterface interface{}, obj interface{}) {
-	c.factory.RegisterInterface(ptrToInterface, obj)
-	c.singletonNames.Add(NameOfObject(obj))
+func (c *containerImpl) RegisterSingletonInterface(ptrToInterface interface{}, prototype interface{}) {
+	c.factory.RegisterInterface(ptrToInterface, prototype)
+	c.singletonNames.Add(NameOfObject(prototype))
 }
 
-func (c *containerImpl) RegisterTransientObject(obj interface{}) {
-	c.factory.RegisterObject(obj)
+func (c *containerImpl) RegisterTransient(prototype interface{}) {
+	c.factory.Register(prototype)
 }
 
-func (c *containerImpl) RegisterTransientInterface(ptrToInterface interface{}, obj interface{}) {
-	c.factory.RegisterInterface(ptrToInterface, obj)
+func (c *containerImpl) RegisterTransientInterface(ptrToInterface interface{}, prototype interface{}) {
+	c.factory.RegisterInterface(ptrToInterface, prototype)
 }
 
 func (c *containerImpl) Invoke(f interface{}) ([]reflect.Value, error) {
 	return nil, nil
 }
 
-func (c *containerImpl) Inject(obj interface{}) {
+func (c *containerImpl) Inject(ptrToObj interface{}) {
+	v := reflect.ValueOf(ptrToObj)
 
+	for v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	if v.Kind() != reflect.Struct {
+		gox.LogError("Failed to inject into non-struct object: " + NameOfObject(ptrToObj))
+		return
+	}
+
+	t := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		f := v.Field(i)
+		structField := t.Field(i)
+		if f.CanSet() && structField.Tag.Get("inject") != "" {
+			ft := f.Type()
+			obj := c.GetObject(NameOfType(ft))
+			if obj == nil {
+				panic("Failed to find object for type:" + NameOfType(ft))
+			}
+			f.Set(reflect.ValueOf(obj))
+		}
+	}
 }
 
 func (c *containerImpl) Build() {
-
+	names := c.singletonNames.Slice()
+	for _, name := range names {
+		obj := c.GetObject(name.(string))
+		if obj != nil {
+			gox.LogInfo("Initialized singleton object for", name)
+		} else {
+			gox.LogError("Failed to initialize singleton object for", name)
+		}
+	}
 }

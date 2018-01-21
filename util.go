@@ -16,6 +16,10 @@ func InterfaceOf(ptrToInterface interface{}) reflect.Type {
 	return t
 }
 
+func NameOfType(t reflect.Type) string {
+	return t.PkgPath() + "/" + t.Name()
+}
+
 func NameOfObject(obj interface{}) string {
 	t := reflect.TypeOf(obj)
 	return t.PkgPath() + "/" + t.Name()
