@@ -1,8 +1,8 @@
 package infrastructure
 
 import (
-	"github.com/natande/go-ioc/example/domain"
 	"fmt"
+	"github.com/natande/go-ioc/example/domain"
 )
 
 type UserRepo struct {

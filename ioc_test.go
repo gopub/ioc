@@ -1,8 +1,8 @@
 package ioc
 
 import (
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestMain(m *testing.M) {

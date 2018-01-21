@@ -4,7 +4,6 @@ import (
 	"github.com/natande/gox"
 	"reflect"
 	"sync"
-	"fmt"
 )
 
 type Container interface {
@@ -47,6 +46,8 @@ func (c *containerImpl) SetObject(name string, obj interface{}) {
 	if obj == nil {
 		panic("obj is nil")
 	}
+
+	gox.LogInfo("Set object for:", name)
 	c.nameToObject.Store(name, obj)
 }
 
@@ -71,13 +72,13 @@ func (c *containerImpl) GetObject(name string) interface{} {
 
 func (c *containerImpl) RegisterSingleton(prototype interface{}) {
 	c.factory.Register(prototype)
-	gox.LogInfo(prototype, NameOfObject(prototype))
+	gox.LogInfo(NameOfObject(prototype))
 	c.singletonNames.Add(NameOfObject(prototype))
 }
 
 func (c *containerImpl) RegisterSingletonInterface(ptrToInterface interface{}, prototype interface{}) {
 	c.factory.RegisterInterface(ptrToInterface, prototype)
-	gox.LogInfo(prototype, NameOfInterface(ptrToInterface))
+	gox.LogInfo(NameOfInterface(ptrToInterface), NameOfObject(prototype))
 	c.singletonNames.Add(NameOfInterface(ptrToInterface))
 }
 
@@ -114,7 +115,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 			ft := f.Type()
 			obj := c.GetObject(NameOfType(ft))
 			if obj == nil {
-				panic("Failed to find object for type:" + NameOfType(ft))
+				panic("Failed to find object for type:" + NameOfType(ft) + " of Object:" + NameOfType(t))
 			}
 			f.Set(reflect.ValueOf(obj))
 		}
