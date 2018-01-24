@@ -24,3 +24,29 @@ func TestInjectValue(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+type Calculator struct {
+	PlusService PlusService `inject:""`
+}
+
+type PlusService interface {
+	Plus(a, b int) int
+}
+
+type PlusServiceImpl struct {
+}
+
+func (p *PlusServiceImpl) Plus(a, b int) int {
+	return a + b
+}
+
+func TestInjectInterface(t *testing.T) {
+	ioc.RegisterTransient(&Calculator{})
+
+	name := ioc.RegisterSingleton(&PlusServiceImpl{})
+	ioc.RegisterAlias(name, ioc.NameOf((*PlusService)(nil)))
+	c := ioc.Resolve(ioc.NameOf(&Calculator{})).(*Calculator)
+	if c.PlusService.Plus(1, 2) != 3 {
+		t.FailNow()
+	}
+}
