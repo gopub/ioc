@@ -56,7 +56,7 @@ func (c *containerImpl) addRegistry(r *registryInfo) {
 	c.mu.Unlock()
 }
 
-func (c *containerImpl) RegisterValue(name string, value interface{}) {
+func (c *containerImpl) RegisterValue(name string, value interface{}) bool {
 	if len(name) == 0 {
 		panic("name is empty")
 	}
@@ -72,6 +72,7 @@ func (c *containerImpl) RegisterValue(name string, value interface{}) {
 		value:       value,
 	}
 	c.addRegistry(r)
+	return true
 }
 
 func (c *containerImpl) RegisterSingleton(prototype interface{}) string {
@@ -93,24 +94,26 @@ func (c *containerImpl) RegisterTransient(prototype interface{}) string {
 	return name
 }
 
-func (c *containerImpl) RegisterSingletonCreator(name string, creator Creator) {
+func (c *containerImpl) RegisterSingletonCreator(name string, creator Creator) bool {
 	c.factory.RegisterCreator(name, creator)
 	r := &registryInfo{
 		name:        name,
 		isSingleton: true,
 	}
 	c.addRegistry(r)
+	return true
 }
 
-func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) {
+func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) bool {
 	c.factory.RegisterCreator(name, creator)
 	r := &registryInfo{
 		name: name,
 	}
 	c.addRegistry(r)
+	return true
 }
 
-func (c *containerImpl) RegisterAlias(name string, aliasList ...string) {
+func (c *containerImpl) RegisterAlias(name string, aliasList ...string) bool {
 	r := c.getRegistry(name)
 	if r == nil {
 		panic("not found: " + name)
@@ -126,6 +129,8 @@ func (c *containerImpl) RegisterAlias(name string, aliasList ...string) {
 		c.mu.Unlock()
 		gox.LogInfo(fmt.Sprintf("Name=%s, Alias=%s", name, alias))
 	}
+
+	return true
 }
 
 func (c *containerImpl) GetAlias(name string) []string {
