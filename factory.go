@@ -10,10 +10,10 @@ import (
 type Creator func(args ...interface{}) interface{}
 
 type Factory interface {
-	Register(prototype interface{})
-	RegisterInterface(ptrToInterface interface{}, prototype interface{})
+	RegisterType(prototype interface{}) string
 	RegisterCreator(name string, creator Creator, defaultArgs ...interface{})
-	CreateObject(name string, args ...interface{}) (interface{}, error)
+	Create(name string, args ...interface{}) (interface{}, error)
+	Contains(name string) bool
 }
 
 func NewFactory() Factory {
@@ -33,7 +33,7 @@ type factoryImpl struct {
 	nameToCreator *sync.Map
 }
 
-func (f *factoryImpl) Register(prototype interface{}) {
+func (f *factoryImpl) RegisterType(prototype interface{}) string {
 	var creator Creator = func(args ...interface{}) interface{} {
 		v := reflect.New(reflect.TypeOf(prototype)).Elem()
 		result := v
@@ -43,26 +43,10 @@ func (f *factoryImpl) Register(prototype interface{}) {
 		}
 		return result.Interface()
 	}
-	f.RegisterCreator(NameOfObject(prototype), creator)
-}
-
-func (f *factoryImpl) RegisterInterface(ptrToInterface interface{}, prototype interface{}) {
-	interfaceType := InterfaceOf(ptrToInterface)
-	t := reflect.TypeOf(prototype)
-	if !t.Implements(interfaceType) {
-		panic(t.Name() + " doesn't implement interface " + interfaceType.Name())
-	}
-
-	var creator Creator = func(args ...interface{}) interface{} {
-		v := reflect.New(reflect.TypeOf(prototype)).Elem()
-		result := v
-		for v.Kind() == reflect.Ptr {
-			v.Set(reflect.New(v.Type().Elem()))
-			v = v.Elem()
-		}
-		return result.Interface()
-	}
-	f.RegisterCreator(NameOfInterface(ptrToInterface), creator)
+	name := NameOfValue(prototype)
+	f.RegisterCreator(name, creator)
+	gox.LogInfo(name)
+	return name
 }
 
 func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs ...interface{}) {
@@ -102,7 +86,7 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 	f.nameToCreator.Store(name, info)
 }
 
-func (f *factoryImpl) CreateObject(name string, args ...interface{}) (interface{}, error) {
+func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, error) {
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
 		return nil, gox.ErrNotFound("name")
@@ -114,4 +98,9 @@ func (f *factoryImpl) CreateObject(name string, args ...interface{}) (interface{
 	}
 
 	return ci.creator(ci.defaultArgs...), nil
+}
+
+func (f *factoryImpl) Contains(name string) bool {
+	_, ok := f.nameToCreator.Load(name)
+	return ok
 }
