@@ -24,6 +24,10 @@ func nameOfType(t reflect.Type) string {
 		stars += "*"
 		t = t.Elem()
 	}
+
+	if t.Kind() == reflect.Interface {
+		stars = ""
+	}
 	return t.PkgPath() + "/" + stars + t.Name()
 }
 
