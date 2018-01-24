@@ -14,6 +14,21 @@ type PageController struct {
 	Title string `inject:"page_title"`
 }
 
+type Greeting struct {
+	Text string
+}
+
+func (f *Greeting) Init() {
+	f.Text = "Hello"
+}
+
+func TestResolve(t *testing.T) {
+	ioc.RegisterSingleton(&Greeting{})
+
+	g := ioc.Resolve(ioc.NameOf(&Greeting{})).(*Greeting)
+	t.Log(g.Text)
+}
+
 func TestInjectValue(t *testing.T) {
 	title := "This is a page"
 	ioc.RegisterValue("page_title", title)

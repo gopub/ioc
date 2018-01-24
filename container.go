@@ -1,21 +1,36 @@
 package ioc
 
 type Container interface {
+	//RegisterValue registers value with name
 	RegisterValue(name string, value interface{}) bool
 
+	//RegisterSingleton register a singleton value of prototype
+	//Return its corresponded name
+	//Only one value will be created
 	RegisterSingleton(prototype interface{}) string
+
+	//RegisterTransient register a transient value of prototype
+	//Return its corresponded name
+	//New value will be created in every resolve
 	RegisterTransient(prototype interface{}) string
 
+	//RegisterTransientCreator register a new transient of name. It will be created through creator.
 	RegisterTransientCreator(name string, creator Creator) bool
+
+	//RegisterSingletonCreator register a new singleton of name. It will be created through creator.
 	RegisterSingletonCreator(name string, creator Creator) bool
 
+	//Contains returns true if name is already registered
 	Contains(name string) bool
+
+	//RegisterAlias adds alias of name
 	RegisterAlias(name string, alias ...string) bool
+
+	//GetAlias return all alias of name which is also included in the result
 	GetAlias(name string) []string
 
+	//Resolve finds the value by name, and inject all dependencies
 	Resolve(name string) interface{}
-
-	//NewChildContainer() Container
 }
 
 var rootContainer = NewContainer()
