@@ -18,17 +18,15 @@ func InterfaceOf(ptrToInterface interface{}) reflect.Type {
 	return t
 }
 
-func NameOfType(t reflect.Type) string {
+func nameOfType(t reflect.Type) string {
+	stars := ""
 	for t.Kind() == reflect.Ptr {
+		stars += "*"
 		t = t.Elem()
 	}
-	return t.PkgPath() + "/" + t.Name()
+	return t.PkgPath() + "/" + stars + t.Name()
 }
 
-func NameOfValue(obj interface{}) string {
-	t := reflect.TypeOf(obj)
-	for t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-	return t.PkgPath() + "/" + t.Name()
+func NameOf(obj interface{}) string {
+	return nameOfType(reflect.TypeOf(obj))
 }

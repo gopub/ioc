@@ -182,7 +182,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 	}
 
 	if v.Kind() != reflect.Struct {
-		gox.LogError("Failed to inject into non-struct object: " + NameOfValue(ptrToObj))
+		gox.LogError("Failed to inject into non-struct object: " + NameOf(ptrToObj))
 		return
 	}
 
@@ -198,16 +198,16 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 		if name, ok := structField.Tag.Lookup("inject"); ok {
 			name = strings.TrimSpace(name)
 			if len(name) == 0 {
-				name = NameOfType(f.Type())
+				name = nameOfType(f.Type())
 			}
 
 			obj := c.Resolve(name)
 			if obj == nil {
-				panic("Failed to inject field:" + NameOfType(t) + "." + f.Type().Name())
+				panic("Failed to inject field:" + nameOfType(t) + "." + f.Type().Name())
 			}
 			f.Set(reflect.ValueOf(obj))
 		}
 	}
 
-	gox.LogInfo("inject object for type: ", NameOfType(t))
+	gox.LogInfo("inject object for type: ", nameOfType(t))
 }

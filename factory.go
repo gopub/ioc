@@ -43,7 +43,7 @@ func (f *factoryImpl) RegisterType(prototype interface{}) string {
 		}
 		return result.Interface()
 	}
-	name := NameOfValue(prototype)
+	name := NameOf(prototype)
 	f.RegisterCreator(name, creator)
 	gox.LogInfo(name)
 	return name
