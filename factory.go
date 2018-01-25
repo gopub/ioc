@@ -2,7 +2,8 @@ package ioc
 
 import (
 	"fmt"
-	"github.com/natande/gox"
+	"github.com/gopub/types"
+	"log"
 	"reflect"
 	"sync"
 )
@@ -45,7 +46,7 @@ func (f *factoryImpl) RegisterType(prototype interface{}) string {
 	}
 	name := NameOf(prototype)
 	f.RegisterCreator(name, creator)
-	gox.LogInfo(name)
+	log.Printf("RegisterType:name=%s", name)
 	return name
 }
 
@@ -89,7 +90,7 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, error) {
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
-		return nil, gox.ErrNotFound("name")
+		return nil, types.ErrNotFound("name")
 	}
 
 	ci := c.(*creatorInfo)

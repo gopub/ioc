@@ -1,7 +1,7 @@
 package ioc_test
 
 import (
-	"github.com/natande/go-ioc"
+	"github.com/gopub/ioc"
 	"os"
 	"testing"
 )
