@@ -113,13 +113,13 @@ func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) b
 	return true
 }
 
-func (c *containerImpl) RegisterAlias(name string, aliasList ...string) bool {
+func (c *containerImpl) RegisterAliases(name string, aliases ...string) bool {
 	r := c.getRegistry(name)
 	if r == nil {
 		panic("not found: " + name)
 	}
 
-	for _, alias := range aliasList {
+	for _, alias := range aliases {
 		if c.Contains(alias) {
 			panic("duplicate registry for name: " + alias)
 		}

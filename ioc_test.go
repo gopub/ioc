@@ -59,7 +59,7 @@ func TestInjectInterface(t *testing.T) {
 	ioc.RegisterTransient(&Calculator{})
 
 	name := ioc.RegisterSingleton(&PlusServiceImpl{})
-	ioc.RegisterAlias(name, ioc.NameOf((*PlusService)(nil)))
+	ioc.RegisterAliases(name, ioc.NameOf((*PlusService)(nil)))
 	c := ioc.Resolve(ioc.NameOf(&Calculator{})).(*Calculator)
 	if c.PlusService.Plus(1, 2) != 3 {
 		t.FailNow()

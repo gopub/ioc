@@ -39,7 +39,7 @@ ioc.RegisterTransient(&Calculator{})
 name := ioc.RegisterSingleton(&PlusServiceImpl{})
 
 //Register PlusService as alias of PlusServiceImpl
-ioc.RegisterAlias(name, ioc.NameOf((*PlusService)(nil)))
+ioc.RegisterAliases(name, ioc.NameOf((*PlusService)(nil)))
 
 //PlusServiceImpl will be injected into Calculator.PlusService
 c := ioc.Resolve(ioc.NameOf(&Calculator{})).(*Calculator)

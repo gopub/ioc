@@ -23,8 +23,8 @@ type Container interface {
 	//Contains returns true if name is already registered
 	Contains(name string) bool
 
-	//RegisterAlias adds alias of name
-	RegisterAlias(name string, alias ...string) bool
+	//RegisterAliases adds alias of name
+	RegisterAliases(name string, aliases ...string) bool
 
 	//GetAlias return all alias of name which is also included in the result
 	GetAlias(name string) []string
@@ -70,8 +70,8 @@ func Contains(name string) bool {
 	return rootContainer.Contains(name)
 }
 
-func RegisterAlias(name string, alias ...string) bool {
-	return rootContainer.RegisterAlias(name, alias...)
+func RegisterAliases(name string, alias ...string) bool {
+	return rootContainer.RegisterAliases(name, alias...)
 }
 
 func GetAlias(name string) []string {
