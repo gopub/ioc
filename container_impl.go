@@ -2,7 +2,7 @@ package ioc
 
 import (
 	"fmt"
-	"github.com/natande/gox"
+	"log"
 	"reflect"
 	"strings"
 	"sync"
@@ -65,7 +65,7 @@ func (c *containerImpl) RegisterValue(name string, value interface{}) bool {
 		panic("value is nil")
 	}
 
-	gox.LogInfo("register value for", name)
+	log.Printf("RegisterValue: name=%s", name)
 	r := &registryInfo{
 		name:        name,
 		isSingleton: true,
@@ -127,7 +127,7 @@ func (c *containerImpl) RegisterAlias(name string, aliasList ...string) bool {
 		c.mu.Lock()
 		c.nameToRegistryIndex[alias] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		gox.LogInfo(fmt.Sprintf("Name=%s, Alias=%s", name, alias))
+		log.Printf("RegisterAliases:name=%s,alias=%s", name, alias)
 	}
 
 	return true
@@ -149,7 +149,7 @@ func (c *containerImpl) Contains(name string) bool {
 func (c *containerImpl) Resolve(name string) interface{} {
 	r := c.getRegistry(name)
 	if r == nil {
-		gox.LogWarn("not found:", name)
+		log.Printf("Resolve: no registry for name=%s", name)
 		return nil
 	}
 
@@ -159,7 +159,7 @@ func (c *containerImpl) Resolve(name string) interface{} {
 
 	v, err := c.factory.Create(r.name, nil)
 	if err != nil {
-		gox.LogError(err, name)
+		log.Println(err, name)
 		return nil
 	}
 
@@ -182,7 +182,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 	}
 
 	if v.Kind() != reflect.Struct {
-		gox.LogError("Failed to inject into non-struct object: " + NameOf(ptrToObj))
+		log.Printf("Inject:non-struct value. name=%s", NameOf(ptrToObj))
 		return
 	}
 
@@ -203,11 +203,11 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 
 			obj := c.Resolve(name)
 			if obj == nil {
-				panic("Failed to inject field:" + nameOfType(t) + "." + f.Type().Name())
+				panic(fmt.Sprintf("Inject: failed to resolve value for field=%s, name=%s", f.Type().Name(), nameOfType(t)))
 			}
 			f.Set(reflect.ValueOf(obj))
 		}
 	}
 
-	gox.LogInfo("inject object for type: ", nameOfType(t))
+	log.Printf("Inject:name=%s", nameOfType(t))
 }
