@@ -2,8 +2,8 @@ package ioc
 
 import (
 	"fmt"
+	"github.com/gopub/log"
 	"github.com/gopub/types"
-	"log"
 	"reflect"
 	"sync"
 )
@@ -29,22 +29,22 @@ func (f *factoryImpl) RegisterType(prototype interface{}) string {
 	}
 	name := NameOf(prototype)
 	f.RegisterCreator(name, creator)
-	log.Printf("RegisterType:name=%s", name)
+	log.Infof("name=%s", name)
 	return name
 }
 
 func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs ...interface{}) {
 	if len(name) == 0 {
-		panic("name is empty")
+		log.Panic("name is empty")
 	}
 
 	if creator == nil {
-		panic("creator is nil")
+		log.Panic("creator is nil")
 	}
 
 	_, ok := f.nameToCreator.Load(name)
 	if ok {
-		panic("duplicate creator for name: " + name)
+		log.Panicf("duplicate creator. name=%s" + name)
 		return
 	}
 
@@ -52,12 +52,12 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 		fmt.Println(defaultArgs...)
 		t := reflect.TypeOf(creator)
 		if len(defaultArgs) != t.NumIn() {
-			panic("defaultArgs doesn't match creator's arguments")
+			log.Panic("defaultArgs doesn't match creator's arguments")
 		}
 
 		for i := 0; i < t.NumIn(); i++ {
 			if !reflect.TypeOf(defaultArgs[i]).AssignableTo(t.In(i)) {
-				panic("defaultArgs doesn't match creator's arguments at: " + fmt.Sprint(i))
+				log.Panic("defaultArgs doesn't match creator's arguments at: " + fmt.Sprint(i))
 			}
 		}
 	}

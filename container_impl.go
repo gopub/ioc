@@ -2,7 +2,7 @@ package ioc
 
 import (
 	"fmt"
-	"log"
+	"github.com/gopub/log"
 	"reflect"
 	"strings"
 	"sync"
@@ -65,7 +65,7 @@ func (c *containerImpl) RegisterValue(name string, value interface{}) bool {
 		panic("value is nil")
 	}
 
-	log.Printf("RegisterValue: name=%s", name)
+	log.Infof("RegisterValue: name=%s", name)
 	r := &registryInfo{
 		name:        name,
 		isSingleton: true,
@@ -116,18 +116,18 @@ func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) b
 func (c *containerImpl) RegisterAliases(name string, aliases ...string) bool {
 	r := c.getRegistry(name)
 	if r == nil {
-		panic("not found: " + name)
+		log.Panicf("name=%s, not found" + name)
 	}
 
 	for _, alias := range aliases {
 		if c.Contains(alias) {
-			panic("duplicate registry for name: " + alias)
+			log.Panicf("name=%s, duplicate registry", alias)
 		}
 		r.AppendAlias(alias)
 		c.mu.Lock()
 		c.nameToRegistryIndex[alias] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		log.Printf("RegisterAliases:name=%s,alias=%s", name, alias)
+		log.Infof("name=%s, alias=%s", name, alias)
 	}
 
 	return true
@@ -149,7 +149,7 @@ func (c *containerImpl) Contains(name string) bool {
 func (c *containerImpl) Resolve(name string) interface{} {
 	r := c.getRegistry(name)
 	if r == nil {
-		log.Printf("Resolve: no registry for name=%s", name)
+		log.Errorf("name=%s, no registry", name)
 		return nil
 	}
 
@@ -159,7 +159,7 @@ func (c *containerImpl) Resolve(name string) interface{} {
 
 	v, err := c.factory.Create(r.name, nil)
 	if err != nil {
-		log.Println(err, name)
+		log.Errorf("name=%s, error=%s", name, err)
 		return nil
 	}
 
@@ -182,7 +182,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 	}
 
 	if v.Kind() != reflect.Struct {
-		log.Printf("Inject:non-struct value. name=%s", NameOf(ptrToObj))
+		log.Infof("name=%s, non-struct value", NameOf(ptrToObj))
 		return
 	}
 
@@ -209,5 +209,5 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 		}
 	}
 
-	log.Printf("Inject:name=%s", nameOfType(t))
+	log.Infof("name=%s, injected", nameOfType(t))
 }
