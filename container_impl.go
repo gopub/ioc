@@ -1,7 +1,6 @@
 package ioc
 
 import (
-	"fmt"
 	"github.com/gopub/log"
 	"reflect"
 	"strings"
@@ -203,9 +202,10 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 
 			obj := c.Resolve(name)
 			if obj == nil {
-				panic(fmt.Sprintf("Inject: failed to resolve value for field=%s, name=%s", f.Type().Name(), nameOfType(t)))
+				log.Errorf("field=%s, name=%s, failed to resolve value", f.Type().Name(), nameOfType(t))
+			} else {
+				f.Set(reflect.ValueOf(obj))
 			}
-			f.Set(reflect.ValueOf(obj))
 		}
 	}
 

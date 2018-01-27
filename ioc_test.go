@@ -14,19 +14,30 @@ type PageController struct {
 	Title string `inject:"page_title"`
 }
 
-type Greeting struct {
-	Text string
+type Shape interface {
+	Area() float64
 }
 
-func (f *Greeting) Init() {
-	f.Text = "Hello"
+type Rectangle struct {
+	w float64
+	h float64
+}
+
+func (r *Rectangle) Area() float64 {
+	return r.w * r.h
+}
+
+func TestNameOf(t *testing.T) {
+	t.Log(ioc.NameOf(&Rectangle{}))
+	t.Log(ioc.NameOf(Rectangle{}))
+	t.Log(ioc.NameOf((*Shape)(nil)))
 }
 
 func TestResolve(t *testing.T) {
-	ioc.RegisterSingleton(&Greeting{})
+	ioc.RegisterSingleton(&Rectangle{})
 
-	g := ioc.Resolve(ioc.NameOf(&Greeting{})).(*Greeting)
-	t.Log(g.Text)
+	g := ioc.Resolve(ioc.NameOf(&Rectangle{})).(*Rectangle)
+	t.Log(g.Area())
 }
 
 func TestInjectValue(t *testing.T) {

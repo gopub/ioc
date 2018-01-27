@@ -20,6 +20,10 @@ func InterfaceOf(ptrToInterface interface{}) reflect.Type {
 
 func nameOfType(t reflect.Type) string {
 	stars := ""
+	if t == nil {
+		return "nil"
+	}
+
 	for t.Kind() == reflect.Ptr {
 		stars += "*"
 		t = t.Elem()

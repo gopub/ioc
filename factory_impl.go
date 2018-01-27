@@ -44,7 +44,7 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 
 	_, ok := f.nameToCreator.Load(name)
 	if ok {
-		log.Panicf("duplicate creator. name=%s" + name)
+		log.Panicf("name=%s, duplicated", name)
 		return
 	}
 
@@ -52,12 +52,13 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 		fmt.Println(defaultArgs...)
 		t := reflect.TypeOf(creator)
 		if len(defaultArgs) != t.NumIn() {
-			log.Panic("defaultArgs doesn't match creator's arguments")
+			log.Panicf("name=%s, num=%d, argument number doesn't match", name, len(defaultArgs))
 		}
 
 		for i := 0; i < t.NumIn(); i++ {
 			if !reflect.TypeOf(defaultArgs[i]).AssignableTo(t.In(i)) {
-				log.Panic("defaultArgs doesn't match creator's arguments at: " + fmt.Sprint(i))
+				log.Panicf("name=%s, index=%d, type=%v, requiredType=%v, type doesn't match",
+					name, i, reflect.TypeOf(defaultArgs[i]), t.In(i))
 			}
 		}
 	}
