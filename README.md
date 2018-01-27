@@ -1,4 +1,4 @@
-# ioc framework for Go
+# IoC(DJ) framework for Go
 This is a lightweight Inversion of Control (Dependency Injection) framework for Go. It's very convenient to register concrete value, singleton or transient prototype into the container, and resolve the value somewhere else with all dependencies automatically injected. 
 ### Name and Alias  
 Each registry will return its name as identifier, which is composed of type's package path and name.
