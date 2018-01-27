@@ -132,7 +132,7 @@ func (c *containerImpl) RegisterAliases(name string, aliases ...string) bool {
 	return true
 }
 
-func (c *containerImpl) GetAlias(name string) []string {
+func (c *containerImpl) GetAliases(name string) []string {
 	r := c.getRegistry(name)
 	if r == nil {
 		return nil
