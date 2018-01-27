@@ -84,3 +84,7 @@ func GetAliases(name string) []string {
 func ResolveByName(name string) interface{} {
 	return rootContainer.ResolveByName(name)
 }
+
+func Resolve(prototype interface{}) interface{} {
+	return rootContainer.Resolve(prototype)
+}
