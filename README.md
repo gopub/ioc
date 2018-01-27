@@ -70,7 +70,7 @@ Correct:
     s := ioc.Resolve(shapeName).(Shape)
     fmt.Print(s.Area())                    
     ```
-5. Timing
+5. Timing  
     The type and its dependencies must be registered before resolve. It's good time to do registry operations before main function executes.
     1. In package's init() function
     ``` 
