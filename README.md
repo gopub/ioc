@@ -75,13 +75,13 @@ Correct:
     1. In package's init() function
     ``` 
         func init() {
-            ioc.Resolve(ioc.NameOf(&LoginService))
+            ioc.RegisterSingleton(&LoginService{})
         }
     ```
     2. Declare global variable to trigger registry operation
     ``` 
         //Declare just ahead of type definition
-        var _ = ioc.Resolve(ioc.NameOf(&LoginService))
+        var _ = ioc.RegisterSingleton(&LoginService{})
         type LoginService struct {
         
         }
