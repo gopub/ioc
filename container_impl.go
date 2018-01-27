@@ -145,7 +145,7 @@ func (c *containerImpl) Contains(name string) bool {
 	return r != nil
 }
 
-func (c *containerImpl) Resolve(name string) interface{} {
+func (c *containerImpl) ResolveByName(name string) interface{} {
 	r := c.getRegistry(name)
 	if r == nil {
 		log.Errorf("name=%s, no registry", name)
@@ -171,6 +171,10 @@ func (c *containerImpl) Resolve(name string) interface{} {
 		initializer.Init()
 	}
 	return v
+}
+
+func (c *containerImpl) Resolve(prototype interface{}) interface{} {
+	return c.ResolveByName(NameOf(prototype))
 }
 
 func (c *containerImpl) Inject(ptrToObj interface{}) {
@@ -200,7 +204,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				name = nameOfType(f.Type())
 			}
 
-			obj := c.Resolve(name)
+			obj := c.ResolveByName(name)
 			if obj == nil {
 				log.Errorf("field=%s, name=%s, failed to resolve value", f.Type().Name(), nameOfType(t))
 			} else {

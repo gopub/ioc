@@ -22,8 +22,8 @@ Correct:
     ioc.RegisterAliases(name, "MyRectangle")
     
     //r1 and r2 is equal
-    r1 := ioc.Resolve(name)
-    r2 := ioc.Resolve("MyRectangle")
+    r1 := ioc.ResolveByName(name)
+    r2 := ioc.ResolveByName("MyRectangle")
     ```
 ### Register and Resolve
 1. Concrete value  
@@ -34,8 +34,8 @@ Correct:
     ioc.RegisterValue("db", db)
     
     //fetch value in somewhere else
-    key := ioc.Resolve("key").(string)
-    db := ioc.Resolve("db").(*sql.DB)
+    key := ioc.ResolveByName("key").(string)
+    db := ioc.ResolveByName("db").(*sql.DB)
     ```
 2. Singleton prototype
 
@@ -46,8 +46,8 @@ Correct:
     
     //fetch value in somewhere else
     //s1 is the same with s2
-    s1 := ioc.Resolve(ioc.NameOf(&LoginService)).(*LoginService)
-    s2 := ioc.Resolve(ioc.NameOf(&LoginService)).(*LoginService)
+    s1 := ioc.Resolve(&LoginService{}).(*LoginService)
+    s2 := ioc.Resolve(&LoginService{}).(*LoginService)
     ```
 3. Transient prototype  
     Use RegisterTransient to register a type of which many values will be created. 
@@ -55,8 +55,8 @@ Correct:
     ioc.RegisterTransient(&Rectangle{})
     
     //r1 and r2 are different values.
-    r1 := ioc.Resolve(ioc.NameOf(&Rectangle)).(*Rectangle)
-    r2 := ioc.Resolve(ioc.NameOf(&Rectangle)).(*Rectangle)
+    r1 := ioc.Resolve(&Rectangle{}).(*Rectangle)
+    r2 := ioc.Resolve(&Rectangle{}).(*Rectangle)
     ```
 4. Prototype for interface
     It's very common to bind a concrete type to an interface type. To support this scenario, register interface's name as an alias of concrete type's name. 
@@ -67,7 +67,7 @@ Correct:
     ioc.RegisterAliases(rectName, shapeName)
     
     //Create &Rectange{} as Shape
-    s := ioc.Resolve(shapeName).(Shape)
+    s := ioc.ResolveByName(shapeName).(Shape)
     fmt.Print(s.Area())                    
     ```
 5. Timing  
