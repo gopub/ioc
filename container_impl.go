@@ -113,20 +113,21 @@ func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) b
 }
 
 func (c *containerImpl) RegisterAliases(name string, aliases ...string) bool {
+	logger := log.With("name", name)
 	r := c.getRegistry(name)
 	if r == nil {
-		log.Panicf("name=%s, not found" + name)
+		logger.Panic("no registry")
 	}
 
 	for _, alias := range aliases {
 		if c.Contains(alias) {
-			log.Panicf("name=%s, duplicate registry", alias)
+			logger.Panicf("duplicated registry for name:%s", alias)
 		}
 		r.AppendAlias(alias)
 		c.mu.Lock()
 		c.nameToRegistryIndex[alias] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		log.Infof("name=%s, alias=%s", name, alias)
+		logger.Infof("registered alias=%s", name, alias)
 	}
 
 	return true
@@ -146,9 +147,10 @@ func (c *containerImpl) Contains(name string) bool {
 }
 
 func (c *containerImpl) ResolveByName(name string) interface{} {
+	logger := log.With("name", name)
 	r := c.getRegistry(name)
 	if r == nil {
-		log.Errorf("name=%s, no registry", name)
+		logger.Error("no registry")
 		return nil
 	}
 
@@ -158,18 +160,22 @@ func (c *containerImpl) ResolveByName(name string) interface{} {
 
 	v, err := c.factory.Create(r.name, nil)
 	if err != nil {
-		log.Errorf("name=%s, error=%s", name, err)
+		logger.Error(err)
 		return nil
 	}
 
-	c.Inject(v)
+	//cache value in registry before injecting in case of recursive dependency
 	if r.isSingleton {
 		r.value = v
 	}
 
+	c.Inject(v)
+
 	if initializer, ok := v.(Initializer); ok {
 		initializer.Init()
+		logger.Info("call Init()")
 	}
+
 	return v
 }
 
