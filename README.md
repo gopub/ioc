@@ -103,3 +103,4 @@ type LoginController struct {
 controller := ioc.Resolve(&LoginController{}).(*LoginController)
 //...
 ```
+
