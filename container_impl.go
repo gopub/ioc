@@ -121,13 +121,13 @@ func (c *containerImpl) RegisterAliases(name string, aliases ...string) bool {
 
 	for _, alias := range aliases {
 		if c.Contains(alias) {
-			logger.Panicf("duplicated registry for name:%s", alias)
+			logger.Panicf("duplicated registry for alias:%s", alias)
 		}
 		r.AppendAlias(alias)
 		c.mu.Lock()
 		c.nameToRegistryIndex[alias] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		logger.Infof("registered alias=%s", name, alias)
+		logger.Infof("registered alias=%s", alias)
 	}
 
 	return true
