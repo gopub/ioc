@@ -1,0 +1,4 @@
+github.com/gopub/log v1.0.0 h1:4Wb/Zj3wGn6S9+tUg3uvmVGsLrtlPBg8OGsR5IkabiA=
+github.com/gopub/log v1.0.0/go.mod h1:C6ijpHVzwY9Rpai9P0cDhDKTImQIFy+IWBqOfzH5cIs=
+github.com/gopub/types v1.0.0 h1:n5Q54yIAWR6Lwn1C5sxk6KiCEl1gnEZB52vsr9YqNtk=
+github.com/gopub/types v1.0.0/go.mod h1:Fe1/7+5HRBCB0arBtAGAF9HbUw/RnJFoGVZxo8X/Jww=
