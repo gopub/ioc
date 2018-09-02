@@ -155,7 +155,7 @@ func (c *containerImpl) ResolveByName(name string) interface{} {
 	}
 
 	if r.value != nil {
-		logger.Infof("Resolved %s", name)
+		logger.Infof("resolved %s", name)
 		return r.value
 	}
 
@@ -174,10 +174,10 @@ func (c *containerImpl) ResolveByName(name string) interface{} {
 
 	if initializer, ok := v.(Initializer); ok {
 		initializer.Init()
-		logger.Infof("Call %s.Init()", NameOf(v))
+		logger.Infof("called %s.Init()", NameOf(v))
 	}
 
-	logger.Infof("Resolved %s", name)
+	logger.Infof("resolved %s", name)
 	return v
 }
 
@@ -186,6 +186,7 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 }
 
 func (c *containerImpl) Inject(ptrToObj interface{}) {
+	log.Infof("start injecting %s", NameOf(ptrToObj))
 	v := reflect.ValueOf(ptrToObj)
 
 	for v.Kind() == reflect.Ptr {
@@ -221,5 +222,5 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 		}
 	}
 
-	log.Infof("name=%s, injected", nameOfType(t))
+	log.Infof("injected %s", nameOfType(t))
 }
