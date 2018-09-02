@@ -60,10 +60,11 @@ type PlusService interface {
 }
 
 type PlusServiceImpl struct {
+	Carrier int `inject:"carrier"`
 }
 
 func (p *PlusServiceImpl) Plus(a, b int) int {
-	return a + b
+	return (a + b) * p.Carrier
 }
 
 func TestInjectInterface(t *testing.T) {
@@ -71,8 +72,9 @@ func TestInjectInterface(t *testing.T) {
 
 	name := ioc.RegisterSingleton(&PlusServiceImpl{})
 	ioc.RegisterAliases(name, ioc.NameOf((*PlusService)(nil)))
+	ioc.RegisterValue("carrier", 10)
 	c := ioc.ResolveByName(ioc.NameOf(&Calculator{})).(*Calculator)
-	if c.PlusService.Plus(1, 2) != 3 {
+	if c.PlusService.Plus(1, 2) != 30 {
 		t.FailNow()
 	}
 }

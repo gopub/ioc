@@ -77,6 +77,10 @@ func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, err
 		return nil, errors.New("no creator for name:" + name)
 	}
 
+	defer func() {
+		log.Infof("Created %s", name)
+	}()
+
 	ci := c.(*creatorInfo)
 	if len(args) > 0 {
 		return ci.creator(args...), nil

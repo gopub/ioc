@@ -155,6 +155,7 @@ func (c *containerImpl) ResolveByName(name string) interface{} {
 	}
 
 	if r.value != nil {
+		logger.Infof("Resolved %s", name)
 		return r.value
 	}
 
@@ -163,8 +164,6 @@ func (c *containerImpl) ResolveByName(name string) interface{} {
 		logger.Error(err)
 		return nil
 	}
-
-	logger.Infof("Created %s", NameOf(v))
 
 	//cache value in registry before injecting in case of recursive dependency
 	if r.isSingleton {
@@ -178,6 +177,7 @@ func (c *containerImpl) ResolveByName(name string) interface{} {
 		logger.Infof("Call %s.Init()", NameOf(v))
 	}
 
+	logger.Infof("Resolved %s", name)
 	return v
 }
 
