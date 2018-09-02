@@ -1,9 +1,9 @@
 package ioc
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gopub/log"
-	"github.com/gopub/types"
 	"reflect"
 	"sync"
 )
@@ -74,7 +74,7 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, error) {
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
-		return nil, types.ErrNotFound("name")
+		return nil, errors.New("no creator for name:" + name)
 	}
 
 	ci := c.(*creatorInfo)
