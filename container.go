@@ -1,39 +1,42 @@
 package ioc
 
 type Container interface {
-	//RegisterValue registers value with name
+	// RegisterValue registers value with name
 	RegisterValue(name string, value interface{}) bool
 
-	//RegisterSingleton register a singleton value of prototype
-	//Return its corresponded name
-	//Only one value will be created
+	// RegisterSingleton register a singleton value of prototype
+	// Return its corresponded name
+	// Only one value will be created
 	RegisterSingleton(prototype interface{}) string
 
-	//RegisterTransient register a transient value of prototype
-	//Return its corresponded name
-	//New value will be created in every resolve
+	// RegisterTransient register a transient value of prototype
+	// Return its corresponded name
+	// New value will be created in every resolve
 	RegisterTransient(prototype interface{}) string
 
-	//RegisterTransientCreator register a new transient of name. It will be created through creator.
+	// RegisterTransientCreator register a new transient of name. It will be created through creator.
 	RegisterTransientCreator(name string, creator Creator) bool
 
-	//RegisterSingletonCreator register a new singleton of name. It will be created through creator.
+	// RegisterSingletonCreator register a new singleton of name. It will be created through creator.
 	RegisterSingletonCreator(name string, creator Creator) bool
 
-	//Contains returns true if name is already registered
+	// Contains returns true if name is already registered
 	Contains(name string) bool
 
-	//RegisterAliases adds aliases to name
+	// RegisterAliases adds aliases to name
 	RegisterAliases(name string, aliases ...string) bool
 
-	//GetAliases returns all aliases of name which is also included in the result
+	// GetAliases returns all aliases of name which is also included in the result
 	GetAliases(name string) []string
 
-	//Resolve finds or creates value by name, and inject all dependencies
+	// Resolve finds or creates value by name, and inject all dependencies
 	ResolveByName(name string) interface{}
 
-	//Resolve finds or creates value by prototype, and inject all dependencies
+	// Resolve finds or creates value by prototype, and inject all dependencies
 	Resolve(prototype interface{}) interface{}
+
+	// Inject ptrToObj's fields with inject tag
+	Inject(ptrToObj interface{})
 }
 
 var rootContainer = NewContainer()
