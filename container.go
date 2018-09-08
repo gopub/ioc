@@ -91,3 +91,7 @@ func ResolveByName(name string) interface{} {
 func Resolve(prototype interface{}) interface{} {
 	return rootContainer.Resolve(prototype)
 }
+
+func Inject(ptrToObj interface{})  {
+	rootContainer.Inject(ptrToObj)
+}
