@@ -36,5 +36,9 @@ func nameOfType(t reflect.Type) string {
 }
 
 func NameOf(obj interface{}) string {
+	name, ok := obj.(string)
+	if ok {
+		return name
+	}
 	return nameOfType(reflect.TypeOf(obj))
 }

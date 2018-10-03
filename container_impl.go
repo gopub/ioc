@@ -118,20 +118,22 @@ func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) b
 	return true
 }
 
-func (c *containerImpl) RegisterAliases(name string, aliases ...string) bool {
-	logger := log.With("name", name)
+func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface{}) bool {
+	name := NameOf(origin)
+	logger := log.With("origin", name)
 	r := c.getRegistry(name)
 	if r == nil {
 		logger.Panic("no registry")
 	}
 
 	for _, alias := range aliases {
-		if c.Contains(alias) {
-			logger.Panicf("duplicated registry for alias:%s", alias)
+		aliasName := NameOf(alias)
+		if c.Contains(aliasName) {
+			logger.Panicf("duplicated registry for alias:%s", aliasName)
 		}
-		r.AppendAlias(alias)
+		r.AppendAlias(aliasName)
 		c.mu.Lock()
-		c.nameToRegistryIndex[alias] = c.nameToRegistryIndex[r.name]
+		c.nameToRegistryIndex[aliasName] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
 		logger.Infof("registered alias=%s", alias)
 	}
@@ -139,7 +141,11 @@ func (c *containerImpl) RegisterAliases(name string, aliases ...string) bool {
 	return true
 }
 
-func (c *containerImpl) GetAliases(name string) []string {
+func (c *containerImpl) GetAliases(origin interface{}) []string {
+	name, ok := origin.(string)
+	if !ok {
+		name = NameOf(origin)
+	}
 	r := c.getRegistry(name)
 	if r == nil {
 		return nil
@@ -152,7 +158,8 @@ func (c *containerImpl) Contains(name string) bool {
 	return r != nil
 }
 
-func (c *containerImpl) resolveByName(name string) interface{} {
+func (c *containerImpl) Resolve(prototype interface{}) interface{} {
+	name := NameOf(prototype)
 	logger := log.With("name", name)
 	r := c.getRegistry(name)
 	if r == nil {
@@ -187,13 +194,6 @@ func (c *containerImpl) resolveByName(name string) interface{} {
 	return v
 }
 
-func (c *containerImpl) Resolve(prototype interface{}) interface{} {
-	if s, ok := prototype.(string); ok {
-		return c.resolveByName(s)
-	}
-	return c.resolveByName(NameOf(prototype))
-}
-
 func (c *containerImpl) Inject(ptrToObj interface{}) {
 	log.Infof("start injecting %s", NameOf(ptrToObj))
 	v := reflect.ValueOf(ptrToObj)
@@ -222,7 +222,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				name = nameOfType(f.Type())
 			}
 
-			obj := c.resolveByName(name)
+			obj := c.Resolve(name)
 			if obj == nil {
 				log.Errorf("field=%s, name=%s, failed to resolve value", f.Type().Name(), nameOfType(t))
 			} else {

@@ -23,14 +23,11 @@ type Container interface {
 	// Contains returns true if name is already registered
 	Contains(name string) bool
 
-	// RegisterAliases adds aliases to name
-	RegisterAliases(name string, aliases ...string) bool
+	// RegisterAliases adds aliases to origin
+	RegisterAliases(origin interface{}, aliases ...interface{}) bool
 
 	// GetAliases returns all aliases of name which is also included in the result
-	GetAliases(name string) []string
-
-	// Resolve finds or creates value by name, and inject all dependencies
-	resolveByName(name string) interface{}
+	GetAliases(origin interface{}) []string
 
 	// Resolve finds or creates value by prototype, and inject all dependencies
 	Resolve(prototype interface{}) interface{}
@@ -76,16 +73,12 @@ func Contains(name string) bool {
 	return rootContainer.Contains(name)
 }
 
-func RegisterAliases(name string, alias ...string) bool {
-	return rootContainer.RegisterAliases(name, alias...)
+func RegisterAliases(origin interface{}, alias ...interface{}) bool {
+	return rootContainer.RegisterAliases(origin, alias...)
 }
 
-func GetAliases(name string) []string {
-	return rootContainer.GetAliases(name)
-}
-
-func resolveByName(name string) interface{} {
-	return rootContainer.resolveByName(name)
+func GetAliases(origin interface{}) []string {
+	return rootContainer.GetAliases(origin)
 }
 
 func Resolve(prototype interface{}) interface{} {
