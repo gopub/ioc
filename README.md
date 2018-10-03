@@ -22,8 +22,8 @@ Correct:
     ioc.RegisterAliases(name, "MyRectangle")
     
     //r1 and r2 is equal
-    r1 := ioc.ResolveByName(name)
-    r2 := ioc.ResolveByName("MyRectangle")
+    r1 := ioc.Resolve(name)
+    r2 := ioc.Resolve("MyRectangle")
     ```
 ### Register and Resolve
 1. Concrete value  
@@ -34,8 +34,8 @@ Correct:
     ioc.RegisterValue("db", db)
     
     //fetch value in somewhere else
-    key := ioc.ResolveByName("key").(string)
-    db := ioc.ResolveByName("db").(*sql.DB)
+    key := ioc.Resolve("key").(string)
+    db := ioc.Resolve("db").(*sql.DB)
     ```
 2. Singleton prototype
 
@@ -67,7 +67,7 @@ Correct:
     ioc.RegisterAliases(rectName, shapeName)
     
     //Create &Rectange{} as Shape
-    s := ioc.ResolveByName(shapeName).(Shape)
+    s := ioc.Resolve(shapeName).(Shape)
     fmt.Print(s.Area())                    
     ```
 5. Timing  

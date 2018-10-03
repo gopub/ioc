@@ -33,10 +33,10 @@ func TestNameOf(t *testing.T) {
 	t.Log(ioc.NameOf((*Shape)(nil)))
 }
 
-func TestResolveByName(t *testing.T) {
+func TestResolve(t *testing.T) {
 	ioc.RegisterSingleton(&Rectangle{})
 
-	g := ioc.ResolveByName(ioc.NameOf(&Rectangle{})).(*Rectangle)
+	g := ioc.Resolve(&Rectangle{}).(*Rectangle)
 	t.Log(g.Area())
 }
 
@@ -45,7 +45,7 @@ func TestInjectValue(t *testing.T) {
 	ioc.RegisterValue("page_title", title)
 	ioc.RegisterSingleton(&PageController{})
 
-	controller := ioc.ResolveByName(ioc.NameOf(&PageController{})).(*PageController)
+	controller := ioc.Resolve(&PageController{}).(*PageController)
 	if controller.Title != title {
 		t.FailNow()
 	}
@@ -73,7 +73,7 @@ func TestInjectInterface(t *testing.T) {
 	name := ioc.RegisterSingleton(&PlusServiceImpl{})
 	ioc.RegisterAliases(name, ioc.NameOf((*PlusService)(nil)))
 	ioc.RegisterValue("carrier", 10)
-	c := ioc.ResolveByName(ioc.NameOf(&Calculator{})).(*Calculator)
+	c := ioc.Resolve(&Calculator{}).(*Calculator)
 	if c.PlusService.Plus(1, 2) != 30 {
 		t.FailNow()
 	}

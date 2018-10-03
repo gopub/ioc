@@ -152,7 +152,7 @@ func (c *containerImpl) Contains(name string) bool {
 	return r != nil
 }
 
-func (c *containerImpl) ResolveByName(name string) interface{} {
+func (c *containerImpl) resolveByName(name string) interface{} {
 	logger := log.With("name", name)
 	r := c.getRegistry(name)
 	if r == nil {
@@ -188,7 +188,10 @@ func (c *containerImpl) ResolveByName(name string) interface{} {
 }
 
 func (c *containerImpl) Resolve(prototype interface{}) interface{} {
-	return c.ResolveByName(NameOf(prototype))
+	if s, ok := prototype.(string); ok {
+		return c.resolveByName(s)
+	}
+	return c.resolveByName(NameOf(prototype))
 }
 
 func (c *containerImpl) Inject(ptrToObj interface{}) {
@@ -219,7 +222,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				name = nameOfType(f.Type())
 			}
 
-			obj := c.ResolveByName(name)
+			obj := c.resolveByName(name)
 			if obj == nil {
 				log.Errorf("field=%s, name=%s, failed to resolve value", f.Type().Name(), nameOfType(t))
 			} else {

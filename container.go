@@ -30,7 +30,7 @@ type Container interface {
 	GetAliases(name string) []string
 
 	// Resolve finds or creates value by name, and inject all dependencies
-	ResolveByName(name string) interface{}
+	resolveByName(name string) interface{}
 
 	// Resolve finds or creates value by prototype, and inject all dependencies
 	Resolve(prototype interface{}) interface{}
@@ -84,8 +84,8 @@ func GetAliases(name string) []string {
 	return rootContainer.GetAliases(name)
 }
 
-func ResolveByName(name string) interface{} {
-	return rootContainer.ResolveByName(name)
+func resolveByName(name string) interface{} {
+	return rootContainer.resolveByName(name)
 }
 
 func Resolve(prototype interface{}) interface{} {
