@@ -92,6 +92,6 @@ func Resolve(prototype interface{}) interface{} {
 	return rootContainer.Resolve(prototype)
 }
 
-func Inject(ptrToObj interface{})  {
+func Inject(ptrToObj interface{}) {
 	rootContainer.Inject(ptrToObj)
 }

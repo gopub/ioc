@@ -44,7 +44,7 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 
 	_, ok := f.nameToCreator.Load(name)
 	if ok {
-		log.Panicf("name=%s, duplicated", name)
+		log.Warnf("overwrite creator of name=%s", name)
 		return
 	}
 

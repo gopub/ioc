@@ -43,15 +43,21 @@ func (c *containerImpl) getRegistry(name string) *registryInfo {
 
 func (c *containerImpl) addRegistry(r *registryInfo) {
 	c.mu.Lock()
-	if _, ok := c.nameToRegistryIndex[r.name]; ok {
-		panic("duplicate name")
+	index, ok := c.nameToRegistryIndex[r.name]
+	if ok {
+		log.Warnf("overwrite registry=%s", r.name)
 	}
 
 	if len(r.aliasList) == 0 {
 		r.aliasList = []string{r.name}
 	}
-	c.registries = append(c.registries, r)
-	c.nameToRegistryIndex[r.name] = len(c.registries) - 1
+
+	if ok {
+		c.registries[index] = r
+	} else {
+		c.registries = append(c.registries, r)
+		c.nameToRegistryIndex[r.name] = len(c.registries) - 1
+	}
 	c.mu.Unlock()
 }
 
@@ -64,7 +70,7 @@ func (c *containerImpl) RegisterValue(name string, value interface{}) bool {
 		panic("value is nil")
 	}
 
-	log.Infof("RegisterValue: name=%s", name)
+	log.Infof("name=%s", name)
 	r := &registryInfo{
 		name:        name,
 		isSingleton: true,
