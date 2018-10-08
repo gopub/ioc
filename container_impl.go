@@ -226,12 +226,12 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 
 			obj := c.Resolve(name)
 			if obj == nil {
-				log.Errorf("failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
+				logger.Errorf("failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
 			} else {
 				f.Set(reflect.ValueOf(obj))
 			}
 		}
 	}
 
-	log.Infof("success")
+	logger.Infof("success")
 }
