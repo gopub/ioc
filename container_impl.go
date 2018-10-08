@@ -135,7 +135,7 @@ func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface
 		c.mu.Lock()
 		c.nameToRegistryIndex[aliasName] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		logger.Infof("registered alias=%s", alias)
+		logger.Infof("registered alias:%s", aliasName)
 	}
 
 	logger.Info("success")
