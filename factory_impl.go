@@ -29,22 +29,23 @@ func (f *factoryImpl) RegisterType(prototype interface{}) string {
 	}
 	name := NameOf(prototype)
 	f.RegisterCreator(name, creator)
-	log.Infof("name=%s", name)
+	log.With("prototype", name).Info("success")
 	return name
 }
 
 func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs ...interface{}) {
+	logger := log.With("name", name)
 	if len(name) == 0 {
-		log.Panic("name is empty")
+		logger.Panic("name is empty")
 	}
 
 	if creator == nil {
-		log.Panic("creator is nil")
+		logger.Panic("creator is nil")
 	}
 
 	_, ok := f.nameToCreator.Load(name)
 	if ok {
-		log.Warnf("overwrite creator of name=%s", name)
+		logger.Warnf("overwrote creator")
 		return
 	}
 
@@ -69,16 +70,19 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 	}
 
 	f.nameToCreator.Store(name, info)
+	logger.Info("success")
 }
 
 func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, error) {
+	logger := log.With("name", name)
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
+		logger.Error("no creator")
 		return nil, errors.New("no creator for name:" + name)
 	}
 
 	defer func() {
-		log.Infof("Created %s", name)
+		logger.Info("success")
 	}()
 
 	ci := c.(*creatorInfo)
