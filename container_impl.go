@@ -138,6 +138,7 @@ func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface
 		logger.Infof("registered alias=%s", alias)
 	}
 
+	logger.Info("success")
 	return true
 }
 
@@ -168,7 +169,7 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	}
 
 	if r.value != nil {
-		logger.Infof("resolved %s", name)
+		logger.Info("success")
 		return r.value
 	}
 
@@ -186,16 +187,17 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	c.Inject(v)
 
 	if initializer, ok := v.(Initializer); ok {
+		logger.Infof("executing %s.Init()", NameOf(v))
 		initializer.Init()
-		logger.Infof("called %s.Init()", NameOf(v))
+		logger.Infof("finished %s.Init()", NameOf(v))
 	}
 
-	logger.Infof("resolved %s", name)
+	logger.Info("success")
 	return v
 }
 
 func (c *containerImpl) Inject(ptrToObj interface{}) {
-	log.Infof("start injecting %s", NameOf(ptrToObj))
+	logger := log.With("ptrToObj", NameOf(ptrToObj))
 	v := reflect.ValueOf(ptrToObj)
 
 	for v.Kind() == reflect.Ptr {
@@ -203,7 +205,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 	}
 
 	if v.Kind() != reflect.Struct {
-		log.Infof("name=%s, non-struct value", NameOf(ptrToObj))
+		logger.Error("must be a pointer to struct value")
 		return
 	}
 
@@ -224,12 +226,12 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 
 			obj := c.Resolve(name)
 			if obj == nil {
-				log.Errorf("field=%s, name=%s, failed to resolve value", f.Type().Name(), nameOfType(t))
+				log.Errorf("failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
 			} else {
 				f.Set(reflect.ValueOf(obj))
 			}
 		}
 	}
 
-	log.Infof("injected %s", nameOfType(t))
+	log.Infof("success")
 }
