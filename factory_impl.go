@@ -81,16 +81,16 @@ func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, err
 		return nil, errors.New("no creator for name:" + name)
 	}
 
-	defer func() {
-		logger.Info("success")
-	}()
-
 	ci := c.(*creatorInfo)
+	var result interface{}
 	if len(args) > 0 {
-		return ci.creator(args...), nil
+		result = ci.creator(args...)
+	} else {
+		result = ci.creator(ci.defaultArgs...)
 	}
 
-	return ci.creator(ci.defaultArgs...), nil
+	logger.Info("success")
+	return result, nil
 }
 
 func (f *factoryImpl) Contains(name string) bool {
