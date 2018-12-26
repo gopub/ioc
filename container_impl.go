@@ -2,6 +2,8 @@ package ioc
 
 import (
 	"github.com/gopub/log"
+	"github.com/gopub/types"
+	"os"
 	"reflect"
 	"strings"
 	"sync"
@@ -218,19 +220,51 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 			continue
 		}
 
-		if name, ok := structField.Tag.Lookup("inject"); ok {
-			name = strings.TrimSpace(name)
-			if len(name) == 0 {
-				name = nameOfType(f.Type())
-			}
+		name, ok := structField.Tag.Lookup("inject")
+		if !ok {
+			continue
+		}
 
-			obj := c.Resolve(name)
-			if obj == nil {
-				logger.Errorf("failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
-			} else {
-				f.Set(reflect.ValueOf(obj))
+		name = strings.TrimSpace(name)
+		if len(name) == 0 {
+			name = nameOfType(f.Type())
+		}
+
+		obj := c.Resolve(name)
+		if obj != nil {
+			f.Set(reflect.ValueOf(obj))
+			continue
+		}
+
+		// Try to resolve value from environments
+		envVal := os.Getenv(name)
+		if len(envVal) > 0 {
+			switch f.Kind() {
+			case reflect.String:
+				f.SetString(envVal)
+				continue
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				intVal, err := types.ParseInt(envVal)
+				if err == nil {
+					f.SetInt(intVal)
+					continue
+				}
+			case reflect.Float32, reflect.Float64:
+				floatVal, err := types.ParseFloat(envVal)
+				if err == nil {
+					f.SetFloat(floatVal)
+					continue
+				}
+			case reflect.Bool:
+				boolVal, err := types.ParseBool(envVal)
+				if err == nil {
+					f.SetBool(boolVal)
+					continue
+				}
 			}
 		}
+		logger.Errorf("failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
 	}
 
 	logger.Infof("success")
