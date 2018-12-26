@@ -237,7 +237,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 		}
 
 		// Try to resolve value from environments
-		envVal := os.Getenv(name)
+		envVal := os.Getenv(strings.ToUpper(name))
 		if len(envVal) > 0 {
 			switch f.Kind() {
 			case reflect.String:
