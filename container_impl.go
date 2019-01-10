@@ -1,6 +1,7 @@
 package ioc
 
 import (
+	"errors"
 	"github.com/gopub/log"
 	"github.com/gopub/types"
 	"os"
@@ -166,8 +167,12 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	logger := log.With("name", name)
 	r := c.getRegistry(name)
 	if r == nil {
-		logger.Error("no registry")
-		return nil
+		err := errors.New("no registry")
+		if AllowAbsent {
+			logger.Error(err)
+			return nil
+		}
+		logger.Panic(err)
 	}
 
 	if r.value != nil {
@@ -177,7 +182,11 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 
 	v, err := c.factory.Create(r.name, nil)
 	if err != nil {
-		logger.Error(err)
+		if AllowAbsent {
+			logger.Error(err)
+		} else {
+			logger.Panic(err)
+		}
 		return nil
 	}
 
@@ -207,7 +216,12 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 	}
 
 	if v.Kind() != reflect.Struct {
-		logger.Error("must be a pointer to struct value")
+		err := errors.New("must be a pointer to struct value")
+		if AllowAbsent {
+			logger.Error(err)
+		} else {
+			logger.Panic(err)
+		}
 		return
 	}
 

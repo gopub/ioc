@@ -77,8 +77,12 @@ func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, err
 	logger := log.With("name", name)
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
-		logger.Error("no creator")
-		return nil, errors.New("no creator for name:" + name)
+		err := errors.New("no creator for name:" + name)
+		if AllowAbsent {
+			logger.Error(err)
+			return nil, err
+		}
+		logger.Panic(err)
 	}
 
 	ci := c.(*creatorInfo)
