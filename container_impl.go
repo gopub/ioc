@@ -126,22 +126,22 @@ func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface
 	logger := log.With("origin", name)
 	r := c.getRegistry(name)
 	if r == nil {
-		logger.Panic("no registry")
+		logger.Panic("No registry")
 	}
 
 	for _, alias := range aliases {
 		aliasName := NameOf(alias)
 		if c.Contains(aliasName) {
-			logger.Panicf("duplicated registry for alias:%s", aliasName)
+			logger.Panicf("Duplicate registry for alias:%s", aliasName)
 		}
 		r.AppendAlias(aliasName)
 		c.mu.Lock()
 		c.nameToRegistryIndex[aliasName] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		logger.Infof("registered alias:%s", aliasName)
+		logger.Infof("Registered alias:%s", aliasName)
 	}
 
-	logger.Info("success")
+	logger.Info("Succeeded")
 	return true
 }
 
@@ -176,7 +176,7 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	}
 
 	if r.value != nil {
-		logger.Info("success")
+		logger.Info("Succeeded")
 		return r.value
 	}
 
@@ -198,12 +198,12 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	c.Inject(v)
 
 	if initializer, ok := v.(Initializer); ok {
-		logger.Infof("executing %s.Init()", NameOf(v))
+		logger.Infof("Executing %s.Init()", NameOf(v))
 		initializer.Init()
-		logger.Infof("finished %s.Init()", NameOf(v))
+		logger.Infof("Finished %s.Init()", NameOf(v))
 	}
 
-	logger.Info("success")
+	logger.Info("Succeeded")
 	return v
 }
 
@@ -278,8 +278,8 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				}
 			}
 		}
-		logger.Errorf("failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
+		logger.Errorf("Failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
 	}
 
-	logger.Infof("success")
+	logger.Infof("Succeeded")
 }

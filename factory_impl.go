@@ -29,7 +29,7 @@ func (f *factoryImpl) RegisterType(prototype interface{}) string {
 	}
 	name := NameOf(prototype)
 	f.RegisterCreator(name, creator)
-	log.With("prototype", name).Info("success")
+	log.With("prototype", name).Info("Succeeded")
 	return name
 }
 
@@ -70,14 +70,14 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 	}
 
 	f.nameToCreator.Store(name, info)
-	logger.Info("success")
+	logger.Info("Succeeded")
 }
 
 func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, error) {
 	logger := log.With("name", name)
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
-		err := errors.New("no creator for name:" + name)
+		err := errors.New("no creator")
 		if AllowAbsent {
 			logger.Error(err)
 			return nil, err
@@ -93,7 +93,7 @@ func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, err
 		result = ci.creator(ci.defaultArgs...)
 	}
 
-	logger.Info("success")
+	logger.Info("Succeeded")
 	return result, nil
 }
 
