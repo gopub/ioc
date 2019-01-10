@@ -1,6 +1,6 @@
 package ioc
 
-var AllowAbsent = false
+var AllowAbsent = true
 
 type Container interface {
 	// RegisterValue registers value with name
