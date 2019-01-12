@@ -3,7 +3,6 @@ package ioc
 import (
 	"errors"
 	"fmt"
-	"github.com/gopub/log"
 	"reflect"
 	"sync"
 )
@@ -29,12 +28,12 @@ func (f *factoryImpl) RegisterType(prototype interface{}) string {
 	}
 	name := NameOf(prototype)
 	f.RegisterCreator(name, creator)
-	log.With("prototype", name).Info("Succeeded")
+	logger.With("prototype", name).Info("Succeeded")
 	return name
 }
 
 func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs ...interface{}) {
-	logger := log.With("name", name)
+	logger := logger.With("name", name)
 	if len(name) == 0 {
 		logger.Panic("name is empty")
 	}
@@ -53,12 +52,12 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 		fmt.Println(defaultArgs...)
 		t := reflect.TypeOf(creator)
 		if len(defaultArgs) != t.NumIn() {
-			log.Panicf("name=%s, num=%d, argument number doesn't match", name, len(defaultArgs))
+			logger.Panicf("name=%s, num=%d, argument number doesn't match", name, len(defaultArgs))
 		}
 
 		for i := 0; i < t.NumIn(); i++ {
 			if !reflect.TypeOf(defaultArgs[i]).AssignableTo(t.In(i)) {
-				log.Panicf("name=%s, index=%d, type=%v, requiredType=%v, type doesn't match",
+				logger.Panicf("name=%s, index=%d, type=%v, requiredType=%v, type doesn't match",
 					name, i, reflect.TypeOf(defaultArgs[i]), t.In(i))
 			}
 		}
@@ -74,7 +73,7 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 }
 
 func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, error) {
-	logger := log.With("name", name)
+	logger := logger.With("name", name)
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
 		err := errors.New("no creator")

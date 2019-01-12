@@ -2,7 +2,6 @@ package ioc
 
 import (
 	"errors"
-	"github.com/gopub/log"
 	"github.com/gopub/types"
 	"os"
 	"reflect"
@@ -48,7 +47,7 @@ func (c *containerImpl) addRegistry(r *registryInfo) {
 	c.mu.Lock()
 	index, ok := c.nameToRegistryIndex[r.name]
 	if ok {
-		log.Warnf("overwrite registry=%s", r.name)
+		logger.Warnf("overwrite registry=%s", r.name)
 	}
 
 	if len(r.aliasList) == 0 {
@@ -73,7 +72,7 @@ func (c *containerImpl) RegisterValue(name string, value interface{}) bool {
 		panic("value is nil")
 	}
 
-	log.Infof("name=%s", name)
+	logger.Infof("name=%s", name)
 	r := &registryInfo{
 		name:        name,
 		isSingleton: true,
@@ -123,7 +122,7 @@ func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) b
 
 func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface{}) bool {
 	name := NameOf(origin)
-	logger := log.With("origin", name)
+	logger := logger.With("origin", name)
 	r := c.getRegistry(name)
 	if r == nil {
 		logger.Panic("No registry")
@@ -164,7 +163,7 @@ func (c *containerImpl) Contains(name string) bool {
 
 func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	name := NameOf(prototype)
-	logger := log.With("name", name)
+	logger := logger.With("name", name)
 	r := c.getRegistry(name)
 	if r == nil {
 		err := errors.New("no registry")
@@ -208,7 +207,7 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 }
 
 func (c *containerImpl) Inject(ptrToObj interface{}) {
-	logger := log.With("ptrToObj", NameOf(ptrToObj))
+	logger := logger.With("ptrToObj", NameOf(ptrToObj))
 	v := reflect.ValueOf(ptrToObj)
 
 	for v.Kind() == reflect.Ptr {
