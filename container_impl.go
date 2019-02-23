@@ -2,7 +2,7 @@ package ioc
 
 import (
 	"errors"
-	"github.com/gopub/types"
+	"github.com/gopub/gox"
 	"os"
 	"reflect"
 	"strings"
@@ -258,19 +258,19 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				continue
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				intVal, err := types.ParseInt(envVal)
+				intVal, err := gox.ParseInt(envVal)
 				if err == nil {
 					f.SetInt(intVal)
 					continue
 				}
 			case reflect.Float32, reflect.Float64:
-				floatVal, err := types.ParseFloat(envVal)
+				floatVal, err := gox.ParseFloat(envVal)
 				if err == nil {
 					f.SetFloat(floatVal)
 					continue
 				}
 			case reflect.Bool:
-				boolVal, err := types.ParseBool(envVal)
+				boolVal, err := gox.ParseBool(envVal)
 				if err == nil {
 					f.SetBool(boolVal)
 					continue
