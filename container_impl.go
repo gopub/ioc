@@ -135,7 +135,7 @@ func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface
 		c.mu.Lock()
 		c.nameToRegistryIndex[aliasName] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		logger.Infof("Registered alias=%s, origin=%s", aliasName, name)
+		logger.Infof("Origin=%s, alias=%s", aliasName, name)
 	}
 	return true
 }
@@ -163,14 +163,14 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	if r == nil {
 		err := errors.New("no registry")
 		if AllowAbsent {
-			logger.Errorf("Failed to resolve type=%s, err=%v", name, err)
+			logger.Errorf("No registry: name=%s", name)
 			return nil
 		}
 		logger.Panic(err)
 	}
 
 	if r.value != nil {
-		logger.Infof("Resolved type=%s", name)
+		logger.Infof("Resolved: name=%s", name)
 		return r.value
 	}
 
@@ -197,7 +197,7 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 		logger.Infof("Finished %s.Init()", NameOf(v))
 	}
 
-	logger.Infof("Created instance: type=%s", r.name)
+	logger.Infof("Instantiated: name=%s", r.name)
 	return v
 }
 
@@ -271,7 +271,7 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				}
 			}
 		}
-		logger.Errorf("Failed to resolve field=%s, type=%s", f.Type().Name(), nameOfType(t))
+		logger.Errorf("Failed to resolve field=%s, of type=%s", name, nameOfType(t))
 	}
 
 	logger.Infof("Injected type=%s", NameOf(ptrToObj))

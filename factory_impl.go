@@ -76,7 +76,7 @@ func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, err
 	if !ok {
 		err := errors.New("no creator")
 		if AllowAbsent {
-			logger.Errorf("Failed to create instance: name=%s, err=%v", name, err)
+			logger.Errorf("Failed to instantiate name=%s")
 			return nil, err
 		}
 		logger.Panic(err)
@@ -90,7 +90,7 @@ func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, err
 		result = ci.creator(ci.defaultArgs...)
 	}
 
-	logger.Infof("Created instance: name=%s", name)
+	logger.Infof("Instantiated name=%s", name)
 	return result, nil
 }
 
