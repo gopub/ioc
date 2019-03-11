@@ -121,7 +121,6 @@ func (c *containerImpl) RegisterTransientCreator(name string, creator Creator) b
 
 func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface{}) bool {
 	name := NameOf(origin)
-	logger := logger.With("origin", name)
 	r := c.getRegistry(name)
 	if r == nil {
 		logger.Panic("No registry")
@@ -130,16 +129,14 @@ func (c *containerImpl) RegisterAliases(origin interface{}, aliases ...interface
 	for _, alias := range aliases {
 		aliasName := NameOf(alias)
 		if c.Contains(aliasName) {
-			logger.Panicf("Duplicate registry for alias:%s", aliasName)
+			logger.Panicf("Duplicate registry for alias=%s", aliasName)
 		}
 		r.AppendAlias(aliasName)
 		c.mu.Lock()
 		c.nameToRegistryIndex[aliasName] = c.nameToRegistryIndex[r.name]
 		c.mu.Unlock()
-		logger.Infof("Registered alias:%s", aliasName)
+		logger.Infof("Registered alias=%s, origin=%s", aliasName, name)
 	}
-
-	logger.Info("Succeeded")
 	return true
 }
 
@@ -162,28 +159,27 @@ func (c *containerImpl) Contains(name string) bool {
 
 func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	name := NameOf(prototype)
-	logger := logger.With("name", name)
 	r := c.getRegistry(name)
 	if r == nil {
 		err := errors.New("no registry")
 		if AllowAbsent {
-			logger.Errorf("Failed to resolve: type=%s, err=%v", name, err)
+			logger.Errorf("Failed to resolve type=%s, err=%v", name, err)
 			return nil
 		}
 		logger.Panic(err)
 	}
 
 	if r.value != nil {
-		logger.Infof("Resolved: type=%s", name)
+		logger.Infof("Resolved type=%s", name)
 		return r.value
 	}
 
 	v, err := c.factory.Create(r.name, nil)
 	if err != nil {
 		if AllowAbsent {
-			logger.Errorf("Failed to create instance: type=%s, err=%v", r.name, err)
+			logger.Errorf("Failed to instantiate type=%s, err=%v", r.name, err)
 		} else {
-			logger.Panicf("Failed to create instance: type=%s, err=%v", r.name, err)
+			logger.Panicf("Failed to instantiate type=%s, err=%v", r.name, err)
 		}
 		return nil
 	}
@@ -275,8 +271,8 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				}
 			}
 		}
-		logger.Errorf("Failed to resolve: field=%s, name=%s", f.Type().Name(), nameOfType(t))
+		logger.Errorf("Failed to resolve field=%s, type=%s", f.Type().Name(), nameOfType(t))
 	}
 
-	logger.Infof("Injected instance: type=%s", NameOf(ptrToObj))
+	logger.Infof("Injected type=%s", NameOf(ptrToObj))
 }
