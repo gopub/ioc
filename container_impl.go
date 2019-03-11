@@ -167,23 +167,23 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 	if r == nil {
 		err := errors.New("no registry")
 		if AllowAbsent {
-			logger.Error(err)
+			logger.Errorf("Failed to resolve: type=%s, err=%v", name, err)
 			return nil
 		}
 		logger.Panic(err)
 	}
 
 	if r.value != nil {
-		logger.Info("Succeeded")
+		logger.Infof("Resolved: type=%s", name)
 		return r.value
 	}
 
 	v, err := c.factory.Create(r.name, nil)
 	if err != nil {
 		if AllowAbsent {
-			logger.Error(err)
+			logger.Errorf("Failed to create instance: type=%s, err=%v", r.name, err)
 		} else {
-			logger.Panic(err)
+			logger.Panicf("Failed to create instance: type=%s, err=%v", r.name, err)
 		}
 		return nil
 	}
@@ -201,12 +201,11 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 		logger.Infof("Finished %s.Init()", NameOf(v))
 	}
 
-	logger.Info("Succeeded")
+	logger.Infof("Created instance: type=%s", r.name)
 	return v
 }
 
 func (c *containerImpl) Inject(ptrToObj interface{}) {
-	logger := logger.With("ptrToObj", NameOf(ptrToObj))
 	v := reflect.ValueOf(ptrToObj)
 
 	for v.Kind() == reflect.Ptr {
@@ -216,9 +215,9 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 	if v.Kind() != reflect.Struct {
 		err := errors.New("must be a pointer to struct value")
 		if AllowAbsent {
-			logger.Error(err)
+			logger.Errorf("Failed to inject: %v", err)
 		} else {
-			logger.Panic(err)
+			logger.Panicf("Failed to inject: %v", err)
 		}
 		return
 	}
@@ -276,8 +275,8 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 				}
 			}
 		}
-		logger.Errorf("Failed to resolve field=%s, name=%s", f.Type().Name(), nameOfType(t))
+		logger.Errorf("Failed to resolve: field=%s, name=%s", f.Type().Name(), nameOfType(t))
 	}
 
-	logger.Infof("Succeeded")
+	logger.Infof("Injected instance: type=%s", NameOf(ptrToObj))
 }

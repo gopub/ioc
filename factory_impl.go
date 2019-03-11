@@ -28,23 +28,22 @@ func (f *factoryImpl) RegisterType(prototype interface{}) string {
 	}
 	name := NameOf(prototype)
 	f.RegisterCreator(name, creator)
-	logger.With("prototype", name).Info("Succeeded")
+	logger.Infof("Registered type=%s", name)
 	return name
 }
 
 func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs ...interface{}) {
-	logger := logger.With("name", name)
 	if len(name) == 0 {
-		logger.Panic("name is empty")
+		logger.Panic("Name is empty")
 	}
 
 	if creator == nil {
-		logger.Panic("creator is nil")
+		logger.Panic("Creator is nil")
 	}
 
 	_, ok := f.nameToCreator.Load(name)
 	if ok {
-		logger.Warnf("overwrote creator")
+		logger.Warnf("Overwrote creator: name=%s", name)
 		return
 	}
 
@@ -52,12 +51,12 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 		fmt.Println(defaultArgs...)
 		t := reflect.TypeOf(creator)
 		if len(defaultArgs) != t.NumIn() {
-			logger.Panicf("name=%s, num=%d, argument number doesn't match", name, len(defaultArgs))
+			logger.Panicf("Failed to register creator: name=%s, num=%d, argument number doesn't match", name, len(defaultArgs))
 		}
 
 		for i := 0; i < t.NumIn(); i++ {
 			if !reflect.TypeOf(defaultArgs[i]).AssignableTo(t.In(i)) {
-				logger.Panicf("name=%s, index=%d, type=%v, requiredType=%v, type doesn't match",
+				logger.Panicf("Failed to register creator: name=%s, index=%d, type=%v, requiredType=%v, type doesn't match",
 					name, i, reflect.TypeOf(defaultArgs[i]), t.In(i))
 			}
 		}
@@ -69,16 +68,15 @@ func (f *factoryImpl) RegisterCreator(name string, creator Creator, defaultArgs 
 	}
 
 	f.nameToCreator.Store(name, info)
-	logger.Info("Succeeded")
+	logger.Infof("Registered creator: name=%s", name)
 }
 
 func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, error) {
-	logger := logger.With("name", name)
 	c, ok := f.nameToCreator.Load(name)
 	if !ok {
 		err := errors.New("no creator")
 		if AllowAbsent {
-			logger.Error(err)
+			logger.Errorf("Failed to create instance: name=%s, err=%v", name, err)
 			return nil, err
 		}
 		logger.Panic(err)
@@ -92,7 +90,7 @@ func (f *factoryImpl) Create(name string, args ...interface{}) (interface{}, err
 		result = ci.creator(ci.defaultArgs...)
 	}
 
-	logger.Info("Succeeded")
+	logger.Infof("Created instance: name=%s", name)
 	return result, nil
 }
 
