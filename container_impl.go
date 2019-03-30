@@ -189,12 +189,24 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 		r.value = v
 	}
 
+	if b, ok := v.(BeforeInjecter); ok {
+		logger.Debugf("%s.BeforeInject() begin", NameOf(v))
+		b.BeforeInject()
+		logger.Debugf("%s.BeforeInject() end", NameOf(v))
+	}
+
 	c.Inject(v)
 
+	if a, ok := v.(AfterInjecter); ok {
+		logger.Debugf("%s.AfterInject() begin", NameOf(v))
+		a.AfterInject()
+		logger.Debugf("%s.AfterInject() end", NameOf(v))
+	}
+
 	if initializer, ok := v.(Initializer); ok {
-		logger.Infof("Executing %s.Init()", NameOf(v))
+		logger.Debugf("%s.Init() begin", NameOf(v))
 		initializer.Init()
-		logger.Infof("Finished %s.Init()", NameOf(v))
+		logger.Debugf("%s.Init() end", NameOf(v))
 	}
 
 	logger.Infof("Instantiated: name=%s", r.name)
