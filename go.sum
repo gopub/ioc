@@ -1,4 +1,6 @@
 github.com/gopub/log v1.0.0 h1:T28VJVMsbh9fJrfcpxtz5fuJF1ikS8VObx59tYQ8LnQ=
 github.com/gopub/log v1.0.0/go.mod h1:N7GzW/a2tgyQp/wSwd9YzUN5AbVB2G1yE7+nZUGL46A=
+github.com/gopub/log v1.0.2 h1:RuBYixioAMEQPi8r77eKj48C9dRWXtq7Bixx5uzyDxg=
+github.com/gopub/log v1.0.2/go.mod h1:N7GzW/a2tgyQp/wSwd9YzUN5AbVB2G1yE7+nZUGL46A=
 github.com/gopub/log v1.3.1 h1:zMKqcVbj00B7tXJhj0si6iwGGaFu1Nm6FgVaAjfX6SY=
 github.com/gopub/log v1.3.1/go.mod h1:N7GzW/a2tgyQp/wSwd9YzUN5AbVB2G1yE7+nZUGL46A=
