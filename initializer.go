@@ -4,10 +4,10 @@ type Initializer interface {
 	Init()
 }
 
-type BeforeInjecter interface {
+type BeforeInjector interface {
 	BeforeInject()
 }
 
-type AfterInjecter interface {
+type AfterInjector interface {
 	AfterInject()
 }

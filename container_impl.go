@@ -189,7 +189,7 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 		r.value = v
 	}
 
-	if b, ok := v.(BeforeInjecter); ok {
+	if b, ok := v.(BeforeInjector); ok {
 		logger.Debugf("%s.BeforeInject() begin", NameOf(v))
 		b.BeforeInject()
 		logger.Debugf("%s.BeforeInject() end", NameOf(v))
@@ -197,7 +197,7 @@ func (c *containerImpl) Resolve(prototype interface{}) interface{} {
 
 	c.Inject(v)
 
-	if a, ok := v.(AfterInjecter); ok {
+	if a, ok := v.(AfterInjector); ok {
 		logger.Debugf("%s.AfterInject() begin", NameOf(v))
 		a.AfterInject()
 		logger.Debugf("%s.AfterInject() end", NameOf(v))
