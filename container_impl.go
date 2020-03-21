@@ -2,10 +2,12 @@ package ioc
 
 import (
 	"errors"
-	"os"
+	"github.com/gopub/conv"
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/gopub/environ"
 )
 
 type registryInfo struct {
@@ -256,34 +258,33 @@ func (c *containerImpl) Inject(ptrToObj interface{}) {
 		}
 
 		// Try to resolve value from environments
-		envVal := os.Getenv(strings.ToUpper(name))
-		if len(envVal) > 0 {
+		envVal := environ.Get(strings.ToUpper(name))
+		if envVal != nil {
 			switch f.Kind() {
 			case reflect.String:
-				f.SetString(envVal)
-				continue
+				if s, err := conv.ToString(envVal); err == nil {
+					f.SetString(s)
+					continue
+				}
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				intVal, err := ParseInt(envVal)
-				if err == nil {
-					f.SetInt(intVal)
+				if n, err := conv.ToInt64(envVal); err == nil {
+					f.SetInt(n)
 					continue
 				}
 			case reflect.Float32, reflect.Float64:
-				floatVal, err := ParseFloat(envVal)
-				if err == nil {
-					f.SetFloat(floatVal)
+				if n, err := conv.ToFloat64(envVal); err == nil {
+					f.SetFloat(n)
 					continue
 				}
 			case reflect.Bool:
-				boolVal, err := ParseBool(envVal)
-				if err == nil {
-					f.SetBool(boolVal)
+				if b, err := conv.ToBool(envVal); err == nil {
+					f.SetBool(b)
 					continue
 				}
 			}
 		}
-		logger.Errorf("Failed to resolve field=%s, of type=%s", name, nameOfType(t))
+		logger.Errorf("Cannot resolve field=%s, of type=%s", name, nameOfType(t))
 	}
 
 	logger.Infof("Injected type=%s", NameOf(ptrToObj))

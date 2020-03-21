@@ -1,9 +1,10 @@
 package ioc_test
 
 import (
-	"github.com/gopub/ioc"
 	"os"
 	"testing"
+
+	"github.com/gopub/ioc"
 )
 
 func TestMain(m *testing.M) {
