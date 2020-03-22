@@ -1,11 +1,8 @@
 package ioc
 
 import (
-	"errors"
 	"reflect"
 )
-
-var errNoValue = errors.New("no value")
 
 func InterfaceOf(ptrToInterface interface{}) reflect.Type {
 	t := reflect.TypeOf(ptrToInterface)
